@@ -26,4 +26,4 @@ COPY --from=builder /app ./
 EXPOSE 8080
 
 # Lancer l'application
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
