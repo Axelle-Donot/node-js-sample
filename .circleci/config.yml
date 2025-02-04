@@ -17,9 +17,10 @@ jobs:
 
   build-docker:
     executor: docker-executor
+    docker:
+      - image: cimg/base:current
     steps:
-      - checkout # Récupère le code source
-      - setup_remote_docker
+      - checkout
 
       - run:
           name: Build Docker image
