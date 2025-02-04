@@ -24,7 +24,7 @@ jobs:
       - checkout
       - docker/build:
           path: .
-          tag: monapp:latest
+          tag: monapp:latest # Nom de l'image à construire
 
       - docker/run:
           name: Test Docker image
