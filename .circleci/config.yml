@@ -1,9 +1,9 @@
 version: 2.1
 
 executors:
-  docker-executor:
-    docker:
-      - image: cimg/base:current
+  vm-executor:
+    machine: true
+    working_directory: ~/app
 
 jobs:
   say-hello:
@@ -16,10 +16,9 @@ jobs:
           command: "echo Hello, World!"
 
   build-docker:
-    executor: docker-executor
+    executor: vm-executor
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: Build Docker image
           command: |
@@ -30,14 +29,7 @@ jobs:
           command: |
             docker run --rm -d -p 8080:8080 --name test-container monapp:latest
             sleep 30  # Attendre un peu plus longtemps pour s'assurer que l'application démarre
-            response=$(curl -i -s http://localhost:8080)  # Récupérer la réponse HTTP complète
-            echo "$response"  # Afficher la réponse pour débogage
-            status_code=$(echo "$response" | grep -oP 'HTTP/\d+\.\d+\s+\K\d{3}')  # Extraire le code de statut
-            echo "Status code: $status_code"  # Afficher le code pour débogage
-            if [ "$status_code" -ne 200 ]; then  # Si le code n'est pas 200
-              echo "L'application ne répond pas avec le statut attendu (200)" && exit 1
-            fi
-            docker stop test-container
+            curl --fail http://127.0.0.1:8080/ || exit 1
 
 workflows:
   version: 2
