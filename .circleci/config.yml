@@ -28,7 +28,7 @@ jobs:
           name: Test Docker image
           command: |
             docker run --rm -d -p 8080:8080 --name test-container monapp:latest
-            sleep 30  # Attendre un peu plus longtemps pour s'assurer que l'application démarre
+            sleep 10  # Attendre un peu plus longtemps pour s'assurer que l'application démarre
             curl --fail http://127.0.0.1:8080/ || exit 1
             docker stop test-container
 
