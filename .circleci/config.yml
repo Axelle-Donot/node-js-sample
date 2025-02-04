@@ -26,7 +26,7 @@ jobs:
           path: .
           image: monapp:latest # L'argument image est ici au lieu de tag
 
-      - docker/run:
+      - docker/exec:
           name: Test Docker image
           image: monapp:latest
           command: |
