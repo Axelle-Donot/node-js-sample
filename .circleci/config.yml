@@ -1,40 +1,24 @@
 version: 2.1
 
 orbs:
-  docker: circleci/docker@2.1.1 # L'orb pour gérer Docker
-
-executors:
-  vm-executor:
-    machine: true
-    working_directory: ~/app
+  docker: circleci/docker@2.1.1
 
 jobs:
-  say-hello:
+  build-and-push:
     docker:
       - image: cimg/base:current
     steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
-  build-docker:
-    executor: vm-executor
-    steps:
-      - checkout
+      - checkout # Étape pour récupérer le code source
 
       - docker/build:
-          image: monapp:latest
-          path: .
-
+          path: ../dockerfile
+          tag: loutron34/monapp:latest
       - docker/push:
-          username: "$DOCKER_USERNAME"
-          password: "$DOCKER_PASSWORD"
-          image: "$DOCKER_USERNAME/monapp:latest"
+          name: loutron34/monapp
+          tag: latest
 
 workflows:
   version: 2
-  build-workflow:
+  build:
     jobs:
-      - say-hello
-      - build-docker
+      - build-and-push
