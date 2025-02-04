@@ -23,17 +23,19 @@ jobs:
     steps:
       - checkout
       - docker/build:
-          image: monapp:latest
-          path: .
-      - docker/run:
+          image: monapp
+          tag: latest
+
+      - run:
           name: Test Docker image
-          image: monapp:latest
           command: |
+            docker run --rm -d -p 8080:8080 --name test-container monapp:latest
             sleep 10  # Attendre un peu plus longtemps pour s'assurer que l'application démarre
             curl --fail http://127.0.0.1:8080/ || exit 1
+            docker stop test-container
+
       - docker/push:
-          name: Push Docker image to Docker Hub
-          image: "$DOCKER_USERNAME/monapp:latest"
+          image: "$DOCKER_USERNAME/monapp"
           tag: latest
           username: "$DOCKER_USERNAME"
           password: "$DOCKER_PASSWORD"
