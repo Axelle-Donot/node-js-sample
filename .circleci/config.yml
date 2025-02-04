@@ -29,8 +29,12 @@ jobs:
           name: Test Docker image
           command: |
             docker run --rm -d -p 8080:8080 --name test-container monapp:latest
-            sleep 30  # Attendre que le conteneur démarre
-            curl -f http://0.0.0.0:8080 || (echo "L'application ne répond pas" && exit 1)
+            sleep 30  # Attendre un peu plus longtemps pour s'assurer que l'application démarre
+            status_code=$(curl -o /dev/null -s -w "%{http_code}" http://localhost:8080)  # Récupérer le code de statut HTTP
+            echo "Status code: $status_code"  # Afficher le code pour débogage
+            if [ "$status_code" -ne 200 ]; then  # Si le code n'est pas 200
+              echo "L'application ne répond pas avec le statut attendu (200)" && exit 1
+            fi
             docker stop test-container
 
 workflows:
