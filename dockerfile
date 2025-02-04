@@ -25,5 +25,5 @@ COPY --from=builder /app ./
 # Exposer le port 8080
 EXPOSE 8080
 
-# Lancer l'application
+# Lancer l'application 
 CMD ["npm", "start"]
