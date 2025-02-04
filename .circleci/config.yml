@@ -19,9 +19,7 @@ jobs:
     executor: docker-executor
     steps:
       - checkout # Récupère le code source
-
-      - setup_remote_docker:
-          version: 20.10.14 # Active Docker en mode distant
+      - setup_remote_docker
 
       - run:
           name: Build Docker image
