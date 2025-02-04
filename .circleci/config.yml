@@ -15,8 +15,8 @@ jobs:
       - checkout
 
       - docker/check:
-          docker-username: DOCKERHUB_USERNAME
-          docker-password: DOCKERHUB_PASSWORD
+          docker-username: $DOCKER_USERNAME
+          docker-password: $DOCKER_PASSWORD
 
       - docker/build:
           image: my-node-app
@@ -25,17 +25,17 @@ jobs:
       - run:
           name: Tag the Docker image with Docker Hub username
           command: |
-            docker tag my-node-app:latest $DOCKERHUB_USERNAME/my-node-app:latest
+            docker tag my-node-app:latest $DOCKER_USERNAME/my-node-app:latest
             docker images  # Vérifier que l'image est bien taguée
 
       - docker/push:
-          image: $DOCKERHUB_USERNAME/my-node-app
+          image: $DOCKER_USERNAME/my-node-app
           tag: latest
           registry: docker.io
 
       - run:
           name: Run Docker container
-          command: docker run -d -p 8080:8080 --name my-node-app $DOCKERHUB_USERNAME/my-node-app:latest
+          command: docker run -d -p 8080:8080 --name my-node-app $DOCKER_USERNAME/my-node-app:latest
 
       - run:
           name: Test if Docker container is responding on the / route
