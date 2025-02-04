@@ -1,8 +1,5 @@
 version: 2.1
 
-orbs:
-  docker: circleci/docker@2.1.1 # L'orb pour gérer Docker
-
 executors:
   vm-executor:
     machine: true
@@ -22,21 +19,25 @@ jobs:
     executor: vm-executor
     steps:
       - checkout
-      - docker/build:
-          path: .
-          tag: monapp:latest
-
-      - docker/run:
-          name: Test Docker image
-          image: monapp:latest
+      - run:
+          name: Build Docker image
           command: |
+            docker build -t monapp:latest .
+
+      - run:
+          name: Test Docker image
+          command: |
+            docker run --rm -d -p 8080:8080 --name test-container monapp:latest
             sleep 10  # Attendre un peu plus longtemps pour s'assurer que l'application démarre
             curl --fail http://127.0.0.1:8080/ || exit 1
+            docker stop test-container
 
-      - docker/push:
-          username: "$DOCKER_USERNAME"
-          password: "$DOCKER_PASSWORD"
-          image: "$DOCKER_USERNAME/monapp:latest"
+      - run:
+          name: Push Docker image to Docker Hub
+          command: |
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            docker tag monapp:latest "$DOCKER_USERNAME/monapp:latest"
+            docker push "$DOCKER_USERNAME/monapp:latest"
 
 workflows:
   version: 2
