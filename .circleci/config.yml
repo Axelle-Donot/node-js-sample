@@ -1,17 +1,60 @@
-version: "2.1"
+version: 2.1
+
 orbs:
-  docker: circleci/docker@2.8.2
+  docker: circleci/docker@2.3.0
+
+executors:
+  vm-executor:
+    machine: true
+    working_directory: ~/app
+
+jobs:
+  build:
+    executor: vm-executor
+    steps:
+      - checkout
+
+      - docker/check:
+          docker-username: DOCKERHUB_USERNAME
+          docker-password: DOCKERHUB_PASSWORD
+
+      - docker/build:
+          image: my-node-app
+          tag: latest
+
+      - run:
+          name: Tag the Docker image with Docker Hub username
+          command: |
+            docker tag my-node-app:latest $DOCKERHUB_USERNAME/my-node-app:latest
+            docker images  # Vérifier que l'image est bien taguée
+
+      - docker/push:
+          image: $DOCKERHUB_USERNAME/my-node-app
+          tag: latest
+          registry: docker.io
+
+      - run:
+          name: Run Docker container
+          command: docker run -d -p 8080:8080 --name my-node-app $DOCKERHUB_USERNAME/my-node-app:latest
+
+      - run:
+          name: Test if Docker container is responding on the / route
+          command: |
+            echo "Waiting for container to start..."
+            sleep 5
+            for i in {1..10}; do
+              if curl --fail http://127.0.0.1:8080/; then
+                echo "Server is up!"
+                exit 0
+              fi
+              echo "Server not ready, retrying ($i/10)..."
+              sleep 2
+            done
+            echo "Server did not start in time."
+            exit 1
+
 workflows:
-  build-docker-image-only:
+  version: 2
+  build_and_push:
     jobs:
-      - docker/publish:
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          update-description: true
-  build-docker-image-only-with-buildkit:
-    jobs:
-      - docker/publish:
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          remote-docker-version: 20.10.12
-          update-description: true
-          use-buildkit: true
-          use-remote-docker: true
+      - build
