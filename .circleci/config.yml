@@ -3,7 +3,7 @@ version: 2.1
 executors:
   docker-executor:
     docker:
-      - image: cimg/base:current # Utilisation d'une image de base CircleCI
+      - image: cimg/base:current
 
 jobs:
   say-hello:
@@ -17,8 +17,6 @@ jobs:
 
   build-docker:
     executor: docker-executor
-    docker:
-      - image: cimg/base:current
     steps:
       - checkout
 
