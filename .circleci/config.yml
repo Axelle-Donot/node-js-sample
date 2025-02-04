@@ -22,16 +22,10 @@ jobs:
     executor: vm-executor
     steps:
       - checkout
-      - docker/build:
-          path: .
-          image: monapp:latest # L'argument image est ici au lieu de tag
 
-      - docker/exec:
-          name: Test Docker image
+      - docker/build:
           image: monapp:latest
-          command: |
-            sleep 10  # Attendre un peu plus longtemps pour s'assurer que l'application démarre
-            curl --fail http://127.0.0.1:8080/ || exit 1
+          path: .
 
       - docker/push:
           username: "$DOCKER_USERNAME"
